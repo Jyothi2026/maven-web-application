@@ -1,0 +1,24 @@
+node{
+    
+    def mavenHome=tool name: "maven3.8.6"
+    
+    stage("Clonning the code from gitRepo")
+    {
+        git credentialsId: 'ssh_key', url: 'https://github.com/Jyothi2026/maven-web-application.git'
+    }
+    stage("maven package")
+    {
+     sh "${mavenHome}/bin/mvn clean package"
+    }
+    stage("Docker Image_build")
+       {
+        sh "docker build -t jyothijyo/imagejyo:1.1.1 ."
+}
+stage("Docker login and Push the code to dockerhub")
+{
+ withCredentials([string(credentialsId: 'DockerJenkins', variable: 'Docker_variable_jenkins')]) {
+     sh "docker login -u jyothijyo -p ${Docker_variable_jenkins}"
+    }
+    sh "docker push jyothijyo/imagejyo:1.1.1"
+}
+}
